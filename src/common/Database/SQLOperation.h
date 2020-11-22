@@ -7,8 +7,6 @@
 #ifndef _SQLOPERATION_H
 #define _SQLOPERATION_H
 
-#include <ace/Method_Request.h>
-#include <ace/Activation_Queue.h>
 
 #include "QueryResult.h"
 
@@ -45,7 +43,7 @@ union SQLResultSetUnion
 
 class MySQLConnection;
 
-class SQLOperation : public ACE_Method_Request
+class SQLOperation
 {
 public:
     SQLOperation(): m_conn(NULL) { }

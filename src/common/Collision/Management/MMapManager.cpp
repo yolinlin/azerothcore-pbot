@@ -80,7 +80,7 @@ namespace MMAP
         return uint32(x << 16 | y);
     }
 
-    ACE_RW_Thread_Mutex& MMapManager::GetMMapLock(uint32 mapId)
+    std::mutex& MMapManager::GetMMapLock(uint32 mapId)
     {
         Map* map = sMapMgr->FindBaseMap(mapId);
         if (!map)
@@ -93,7 +93,7 @@ namespace MMAP
 
     bool MMapManager::loadMap(uint32 mapId, int32 x, int32 y)
     {
-        ACORE_WRITE_GUARD(ACE_RW_Thread_Mutex, MMapManagerLock);
+        ACORE_WRITE_GUARD(std::mutex, MMapManagerLock);
 
         // make sure the mmap is loaded and ready to load tiles
         if (!loadMapData(mapId))
@@ -161,7 +161,7 @@ namespace MMAP
 
         dtStatus stat;
         {
-            ACORE_WRITE_GUARD(ACE_RW_Thread_Mutex, GetMMapLock(mapId));
+            ACORE_WRITE_GUARD(std::mutex, GetMMapLock(mapId));
             stat = mmap->navMesh->addTile(data, fileHeader.size, DT_TILE_FREE_DATA, 0, &tileRef);
         }
 
@@ -188,7 +188,7 @@ namespace MMAP
 
     bool MMapManager::unloadMap(uint32 mapId, int32 x, int32 y)
     {
-        ACORE_WRITE_GUARD(ACE_RW_Thread_Mutex, MMapManagerLock);
+        ACORE_WRITE_GUARD(std::mutex, MMapManagerLock);
 
         // check if we have this map loaded
         if (loadedMMaps.find(mapId) == loadedMMaps.end())
@@ -217,7 +217,7 @@ namespace MMAP
 
         dtStatus status;
         {
-            ACORE_WRITE_GUARD(ACE_RW_Thread_Mutex, GetMMapLock(mapId));
+            ACORE_WRITE_GUARD(std::mutex, GetMMapLock(mapId));
             status = mmap->navMesh->removeTile(tileRef, NULL, NULL);
         }
 
@@ -245,7 +245,7 @@ namespace MMAP
 
     bool MMapManager::unloadMap(uint32 mapId)
     {
-        ACORE_WRITE_GUARD(ACE_RW_Thread_Mutex, MMapManagerLock);
+        ACORE_WRITE_GUARD(std::mutex, MMapManagerLock);
 
         if (loadedMMaps.find(mapId) == loadedMMaps.end())
         {
@@ -265,7 +265,7 @@ namespace MMAP
 
             dtStatus status;
             {
-                ACORE_WRITE_GUARD(ACE_RW_Thread_Mutex, GetMMapLock(mapId));
+                ACORE_WRITE_GUARD(std::mutex, GetMMapLock(mapId));
                 status = mmap->navMesh->removeTile(i->second, NULL, NULL);
             }
 
@@ -291,7 +291,7 @@ namespace MMAP
 
     bool MMapManager::unloadMapInstance(uint32 mapId, uint32 instanceId)
     {
-        ACORE_WRITE_GUARD(ACE_RW_Thread_Mutex, MMapManagerLock);
+        ACORE_WRITE_GUARD(std::mutex, MMapManagerLock);
 
         // check if we have this map loaded
         if (loadedMMaps.find(mapId) == loadedMMaps.end())
@@ -346,7 +346,7 @@ namespace MMAP
         if (mmap->navMeshQueries.find(instanceId) == mmap->navMeshQueries.end())
         {
             // pussywizard: different instances of the same map shouldn't access this simultaneously
-            ACORE_WRITE_GUARD(ACE_RW_Thread_Mutex, GetMMapLock(mapId));
+            ACORE_WRITE_GUARD(std::mutex, GetMMapLock(mapId));
             // check again after acquiring mutex
             if (mmap->navMeshQueries.find(instanceId) == mmap->navMeshQueries.end())
             {

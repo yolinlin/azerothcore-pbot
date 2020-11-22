@@ -119,13 +119,13 @@ namespace ACE_Based
         //! Locks the queue for access.
         void lock()
         {
-            this->_lock.acquire();
+            this->_lock.lock();
         }
 
         //! Unlocks the queue.
         void unlock()
         {
-            this->_lock.release();
+            this->_lock.unlock();
         }
 
         ///! Calls pop_front of the queue

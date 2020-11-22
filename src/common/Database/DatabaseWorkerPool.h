@@ -201,7 +201,7 @@ public:
 
     char const* GetDatabaseName() const
     {
-        return _connectionInfo.database.c_str();
+        return _connectionInfo->database.c_str();
     }
 
     void EscapeString(std::string& str)
@@ -219,7 +219,7 @@ private:
 
     void Enqueue(SQLOperation* op)
     {
-        _queue->enqueue(op);
+        _queue->Push(op);
     }
 
     //! Gets a free connection in the synchronous connection pool.
@@ -234,11 +234,11 @@ private:
         IDX_SIZE
     };
 
-    ACE_Message_Queue<ACE_SYNCH>*   _mqueue;
-    ACE_Activation_Queue*           _queue;             //! Queue shared by async worker threads.
-    std::vector<std::vector<T*>>    _connections;
-    uint32                          _connectionCount[2];       //! Counter of MySQL connections;
-    MySQLConnectionInfo             _connectionInfo;
+    ACE_Message_Queue<ACE_SYNCH>*         _mqueue;      //! Message Queue used by ACE_Activation_Queue
+    ProducerConsumerQueue<SQLOperation*>* _queue;             //! Queue shared by async worker threads.
+    std::vector< std::vector<T*> >        _connections;
+    uint32                                _connectionCount[2];       //! Counter of MySQL connections;
+    MySQLConnectionInfo*                  _connectionInfo;
 };
 
 #endif

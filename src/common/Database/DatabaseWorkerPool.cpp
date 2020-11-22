@@ -12,7 +12,7 @@
 
 template <class T> DatabaseWorkerPool<T>::DatabaseWorkerPool() :
     _mqueue(new ACE_Message_Queue<ACE_SYNCH>(2 * 1024 * 1024, 2 * 1024 * 1024)),
-    _queue(new ACE_Activation_Queue(_mqueue))
+    _queue(new ProducerConsumerQueue<SQLOperation*>())
 {
     memset(_connectionCount, 0, sizeof(_connectionCount));
     _connections.resize(IDX_SIZE);
@@ -68,16 +68,10 @@ void DatabaseWorkerPool<T>::Close()
 {
     sLog->outSQLDriver("Closing down DatabasePool '%s'.", GetDatabaseName());
 
-    //! Shuts down delaythreads for this connection pool by underlying deactivate().
-    //! The next dequeue attempt in the worker thread tasks will result in an error,
-    //! ultimately ending the worker thread task.
-    _queue->queue()->close();
-
     for (uint8 i = 0; i < _connectionCount[IDX_ASYNC]; ++i)
     {
         T* t = _connections[IDX_ASYNC][i];
         DatabaseWorker* worker = t->m_worker;
-        worker->wait();     //! Block until no more threads are running this task.
         delete worker;
         t->Close();         //! Closes the actualy MySQL connection.
     }

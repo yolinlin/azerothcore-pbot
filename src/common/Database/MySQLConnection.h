@@ -9,6 +9,7 @@
 #include "DatabaseWorkerPool.h"
 #include "Transaction.h"
 #include "Util.h"
+#include "ProducerConsumerQueue.h"
 
 #ifndef _MYSQLCONNECTION_H
 #define _MYSQLCONNECTION_H
@@ -60,7 +61,7 @@ class MySQLConnection
 
 public:
     MySQLConnection(MySQLConnectionInfo& connInfo);                               //! Constructor for synchronous connections.
-    MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo);  //! Constructor for asynchronous connections.
+    MySQLConnection(ProducerConsumerQueue<SQLOperation*>* queue, MySQLConnectionInfo& connInfo);  //! Constructor for asynchronous connections.
     virtual ~MySQLConnection();
 
     virtual bool Open();
@@ -89,13 +90,13 @@ protected:
     {
         /// Tries to acquire lock. If lock is acquired by another thread
         /// the calling parent will just try another connection
-        return m_Mutex.tryacquire() != -1;
+        return m_Mutex.try_lock();
     }
 
     void Unlock()
     {
         /// Called by parent databasepool. Will let other threads access this connection
-        m_Mutex.release();
+        m_Mutex.unlock();
     }
 
     MYSQL* GetHandle()  { return m_Mysql; }
@@ -115,7 +116,7 @@ private:
     bool _HandleMySQLErrno(uint32 errNo);
 
 private:
-    ACE_Activation_Queue* m_queue;                      //! Queue shared with other asynchronous connections.
+    ProducerConsumerQueue<SQLOperation*>* m_queue;      //! Queue shared with other asynchronous connections.
     DatabaseWorker*       m_worker;                     //! Core worker task.
     MYSQL*                m_Mysql;                      //! MySQL Handle.
     MySQLConnectionInfo&  m_connectionInfo;             //! Connection info (used for logging)

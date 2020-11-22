@@ -344,7 +344,7 @@ public:
     Map const* GetParent() const { return m_parentMap; }
 
     // pussywizard: movemaps, mmaps
-    ACE_RW_Thread_Mutex& GetMMapLock() const { return *(const_cast<ACE_RW_Thread_Mutex*>(&MMapLock)); }
+    std::mutex& GetMMapLock() const { return *(const_cast<std::mutex*>(&MMapLock)); }
     // pussywizard:
     std::unordered_set<Object*> i_objectsToUpdate;
     void BuildAndSendUpdateForObjects(); // definition in ObjectAccessor.cpp, below ObjectAccessor::Update, because it does the same for a map
@@ -579,7 +579,7 @@ protected:
 
     std::mutex Lock;
     std::mutex GridLock;
-    ACE_RW_Thread_Mutex MMapLock;
+    std::mutex MMapLock;
 
     MapEntry const* i_mapEntry;
     uint8 i_spawnMode;
