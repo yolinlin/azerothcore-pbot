@@ -19,7 +19,6 @@
 #include "Chat.h"
 #include "CombatAI.h"
 #include "CreatureTextMgr.h"
-#include "DBCStructure.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
@@ -2668,6 +2667,19 @@ private:
     TaskScheduler _scheduler;
 };
 
+struct npc_controller : public PossessedAI
+{
+    npc_controller(Creature* creature) : PossessedAI(creature) { }
+
+    void OnCharmed(bool apply) override
+    {
+        if (!apply)
+        {
+            me->GetCharmerOrOwner()->InterruptNonMeleeSpells(false);
+        }
+    }
+};
+
 void AddSC_npcs_special()
 {
     // Ours
@@ -2696,4 +2708,5 @@ void AddSC_npcs_special()
     new npc_stable_master();
     RegisterCreatureAI(npc_arcanite_dragonling);
     RegisterCreatureAI(npc_crashin_thrashin_robot);
+    RegisterCreatureAI(npc_controller);
 }

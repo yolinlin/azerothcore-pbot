@@ -326,8 +326,10 @@ enum WorldIntConfigs
     CONFIG_ARENA_GAMES_REQUIRED,
     CONFIG_ARENA_SEASON_ID,
     CONFIG_ARENA_START_RATING,
+    CONFIG_LEGACY_ARENA_POINTS_CALC,
     CONFIG_ARENA_START_PERSONAL_RATING,
     CONFIG_ARENA_START_MATCHMAKER_RATING,
+    CONFIG_ARENA_QUEUE_ANNOUNCER_DETAIL,
     CONFIG_HONOR_AFTER_DUEL,
     CONFIG_PVP_TOKEN_MAP_TYPE,
     CONFIG_PVP_TOKEN_ID,
@@ -601,7 +603,6 @@ public:
 #ifdef MOD_PLAYERBOTS
     [[nodiscard]] virtual char const* GetPlayerbotsDBRevision() const = 0;
 #endif
-    virtual void LoadMotd() = 0;
     virtual void UpdateAreaDependentAuras() = 0;
     [[nodiscard]] virtual uint32 GetCleaningFlags() const = 0;
     virtual void   SetCleaningFlags(uint32 flags) = 0;
